@@ -1,2 +1,6 @@
 plotly
 statsmodels
+streamlit
+pandas
+plotly
+scikit-learn
