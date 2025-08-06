@@ -42,6 +42,20 @@ except Exception as e:
     st.stop()
 
 # ----------------------------
+# ✅ 365일 이상 포함된 연도만 필터링 옵션
+# ----------------------------
+st.sidebar.subheader("🛠️ 데이터 필터 옵션")
+only_full_years = st.sidebar.checkbox("✔️ 365일이 모두 있는 연도만 사용", value=False)
+
+if only_full_years:
+    year_day_counts = df.groupby("연도")["날짜"].nunique()
+    valid_years = year_day_counts[year_day_counts >= 365].index.tolist()
+    df = df[df["연도"].isin(valid_years)]
+    st.sidebar.info(f"✅ {len(valid_years)}개 연도만 포함되었습니다.")
+else:
+    st.sidebar.info("ℹ️ 모든 연도 데이터를 사용 중입니다.")
+
+# ----------------------------
 # 📊 연도별 시각화
 st.subheader("1️⃣ 연도별 기온 추세")
 yearly = df.groupby("연도")[["평균기온(℃)", "최저기온(℃)", "최고기온(℃)"]].mean().reset_index()
@@ -67,7 +81,7 @@ fig_month.add_trace(go.Scatter(x=monthly["월"], y=monthly["최저기온(℃)"],
 fig_month.add_trace(go.Scatter(x=monthly["월"], y=monthly["최고기온(℃)"], mode='lines+markers', name="최고기온"))
 
 fig_month.update_layout(title="월별 평균 기온 (전체 연도 기준)",
-                        xaxis=dict(tickmode='linear'),  # 1~12월
+                        xaxis=dict(tickmode='linear'),
                         xaxis_title="월", yaxis_title="기온 (℃)",
                         hovermode="x unified")
 st.plotly_chart(fig_month, use_container_width=True)
@@ -82,7 +96,7 @@ col1, col2 = st.columns(2)
 with col1:
     input_range = st.slider("📌 입력 데이터 연도 범위", year_min, year_max, (year_min, year_max))
 with col2:
-    pred_range = st.slider("🔮 예측 연도 범위", year_max + 1, year_max + 50, (year_max + 1, year_max + 3))
+    pred_range = st.slider("🔮 예측 연도 범위", year_max + 1, year_max + 5, (year_max + 1, year_max + 3))
 
 if st.button("📈 추세선 예측하기"):
     input_df = yearly[(yearly["연도"] >= input_range[0]) & (yearly["연도"] <= input_range[1])]
