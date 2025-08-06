@@ -82,7 +82,7 @@ col1, col2 = st.columns(2)
 with col1:
     input_range = st.slider("📌 입력 데이터 연도 범위", year_min, year_max, (year_min, year_max))
 with col2:
-    pred_range = st.slider("🔮 예측 연도 범위", year_max + 1, year_max + 5, (year_max + 1, year_max + 3))
+    pred_range = st.slider("🔮 예측 연도 범위", year_max + 1, year_max + 50, (year_max + 1, year_max + 3))
 
 if st.button("📈 추세선 예측하기"):
     input_df = yearly[(yearly["연도"] >= input_range[0]) & (yearly["연도"] <= input_range[1])]
