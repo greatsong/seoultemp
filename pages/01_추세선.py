@@ -32,7 +32,7 @@ else:
 # ⏳ 데이터 전처리
 # ----------------------------
 try:
-    df["일시"] = pd.to_datetime(df["일시"])
+    df["일시"] = pd.to_datetime(df["날짜"])
     df["연도"] = df["일시"].dt.year
 
     for col in ["평균기온(°C)", "최저기온(°C)", "최고기온(°C)"]:
