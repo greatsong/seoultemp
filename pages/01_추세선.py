@@ -6,7 +6,7 @@ from sklearn.linear_model import LinearRegression
 import os
 
 # ----------------------------
-# 📁 기본 파일 경로 설정
+# 📁 기본 파일 경로
 DEFAULT_FILE = "기온데이터(utf-8).csv"
 # ----------------------------
 
@@ -14,7 +14,7 @@ st.set_page_config(page_title="기온 추세 분석", layout="wide")
 st.title("🌡️ 연도별 및 월별 기온 추세 분석 대시보드")
 
 # ----------------------------
-# 📂 파일 업로드 or 기본 사용
+# 📂 파일 업로드 또는 기본 사용
 uploaded_file = st.file_uploader("기온 데이터 CSV 업로드 (선택)", type="csv")
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
@@ -42,21 +42,21 @@ except Exception as e:
     st.stop()
 
 # ----------------------------
-# ✅ 365일 이상 포함된 연도만 필터링 옵션
-# ----------------------------
+# ✅ 365일 이상 실제 데이터 존재 연도 필터
 st.sidebar.subheader("🛠️ 데이터 필터 옵션")
 only_full_years = st.sidebar.checkbox("✔️ 365일이 모두 있는 연도만 사용", value=False)
 
 if only_full_years:
-    year_day_counts = df.groupby("연도")["날짜"].nunique()
+    # 평균기온이 존재하는 날짜 수 기준 필터
+    year_day_counts = df.dropna(subset=["평균기온(℃)"]).groupby("연도")["날짜"].nunique()
     valid_years = year_day_counts[year_day_counts >= 365].index.tolist()
     df = df[df["연도"].isin(valid_years)]
-    st.sidebar.info(f"✅ {len(valid_years)}개 연도만 포함되었습니다.")
+    st.sidebar.info(f"✅ {len(valid_years)}개 연도만 포함되었습니다. (평균기온 기준)")
 else:
     st.sidebar.info("ℹ️ 모든 연도 데이터를 사용 중입니다.")
 
 # ----------------------------
-# 📊 연도별 시각화
+# 📊 연도별 기온 추세
 st.subheader("1️⃣ 연도별 기온 추세")
 yearly = df.groupby("연도")[["평균기온(℃)", "최저기온(℃)", "최고기온(℃)"]].mean().reset_index()
 
@@ -71,7 +71,7 @@ fig_year.update_layout(title="연도별 기온 추세",
 st.plotly_chart(fig_year, use_container_width=True)
 
 # ----------------------------
-# 📅 월별 시각화
+# 📅 월별 평균 기온
 st.subheader("2️⃣ 월별 평균 기온 (전체 연도 기준)")
 monthly = df.groupby("월")[["평균기온(℃)", "최저기온(℃)", "최고기온(℃)"]].mean().reset_index()
 
@@ -87,7 +87,7 @@ fig_month.update_layout(title="월별 평균 기온 (전체 연도 기준)",
 st.plotly_chart(fig_month, use_container_width=True)
 
 # ----------------------------
-# 🔮 추세선 예측
+# 🔮 연도별 추세선 예측
 st.subheader("3️⃣ 연도별 추세선 예측")
 
 year_min, year_max = int(df["연도"].min()), int(df["연도"].max())
